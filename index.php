@@ -35,11 +35,14 @@
 <script id='sphere-fragment-shader' type='x-shader/x-fragment'>
     varying vec2 vUv;
 
-    void main() {
-        if ((fract(vUv.x * 10.0) < 0.02)
-            || (fract(vUv.y * 10.0) < 0.02)) {
+    void main() 
+	{
+        if ((vUv.x < 0.02) || (vUv.x > 0.98) || (vUv.y < 0.02) || (vUv.y > 0.98)) 
+		{
             gl_FragColor = vec4(vec3(0.0), 1.0);
-        } else {
+        } 
+		else 
+		{
             gl_FragColor = vec4(1.0);
         }
     }
@@ -110,8 +113,8 @@ function initRenderer() {
 function initControls() {
     CONTROLS = new THREE.OrbitControls(CAMERA);
     //CONTROLS.enableZoom = false;
-    CONTROLS.minPolarAngle = Math.PI * 1 / 4;
-    CONTROLS.maxPolarAngle = Math.PI * 3 / 4;
+    //CONTROLS.minPolarAngle = Math.PI * 1 / 4;
+    //CONTROLS.maxPolarAngle = Math.PI * 3 / 4;
     CONTROLS.update();
 }
 
@@ -156,6 +159,12 @@ function createObjects() {
 
     SCENE.add(sphere);
 }
+
+
+
+//------------------
+
+
 
 </script>
 
