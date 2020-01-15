@@ -37,7 +37,7 @@
 
     void main() 
 	{
-        if ((vUv.x < 0.02) || (vUv.x > 0.98) || (vUv.y < 0.02) || (vUv.y > 0.98)) 
+        if ((vUv.x < -14.0) || (vUv.x > 14.0) || (vUv.y < -31.0) || (vUv.y > 31.0)) 
 		{
             gl_FragColor = vec4(vec3(0.0), 1.0);
         } 
@@ -156,6 +156,8 @@ function createObjects() {
         fragmentShader: document.getElementById('sphere-fragment-shader').textContent
     });
     const sphere = new THREE.Mesh(geometry, shaderMaterial);
+	
+	upUvs_4( sphere );
 
     SCENE.add(sphere);
 }
@@ -164,7 +166,35 @@ function createObjects() {
 
 //------------------
 
+function upUvs_4( obj )
+{
+	obj.updateMatrixWorld();
+	var geometry = obj.geometry;
+	
+    geometry.faceVertexUvs[0] = [];
+	var faces = geometry.faces;
+	
+    for (var i = 0; i < faces.length; i++) 
+	{		
+		var components = ['x', 'y', 'z'].sort(function(a, b) {			
+			return Math.abs(faces[i].normal[a]) - Math.abs(faces[i].normal[b]);
+		});	
 
+
+        var v1 = geometry.vertices[faces[i].a];
+        var v2 = geometry.vertices[faces[i].b];
+        var v3 = geometry.vertices[faces[i].c];				
+
+        geometry.faceVertexUvs[0].push([
+            new THREE.Vector2(v1[components[0]], v1[components[1]]),
+            new THREE.Vector2(v2[components[0]], v2[components[1]]),
+            new THREE.Vector2(v3[components[0]], v3[components[1]])
+        ]);
+    }
+
+    geometry.uvsNeedUpdate = true;
+	geometry.elementsNeedUpdate = true; 
+}
 
 </script>
 
