@@ -74,6 +74,7 @@ function init() {
     initEventListeners();
 
     createObjects();
+	createGrid();
 
     document.querySelector('.canvas-container').appendChild(RENDERER.domElement);
 }
@@ -161,6 +162,68 @@ function createObjects() {
 
     SCENE.add(sphere);
 }
+
+
+function createGrid() 
+{	
+	var geometry = new THREE.PlaneGeometry( 100, 100 );
+	var material = new THREE.MeshLambertMaterial( {color: 0x00ff00, side: THREE.DoubleSide } );
+	
+	var vertexShader = `
+		varying vec2 vUv;
+		void main() 
+		{
+			vUv = uv;
+			gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+		}
+	`;
+  
+	var fragmentShader = `	
+	#ifdef GL_ES
+	precision mediump float;
+	#endif
+	varying vec2 vUv;
+	
+	uniform vec2 u_resolution;
+
+	float random(in float x){ return fract(sin(x)*43758.5453); }
+	float random(in vec2 st){ return fract(sin(dot(st.xy ,vec2(12.9898,78.233))) * 43758.5453); }
+
+	float grid(vec2 st, float res){
+		vec2 grid = fract(st*res);
+		return 1.-(step(res,grid.x) * step(res,grid.y));
+	}
+
+
+	void main(){
+		vec2 st = gl_FragCoord.st/u_resolution.xy;
+		st.x *= u_resolution.x/u_resolution.y;
+
+		vec3 color = vec3(0.0);
+
+		// Grid
+		vec2 grid_st = st*100.;
+		color += vec3(0.5,0.,0.)*grid(grid_st,0.01);
+		color += vec3(0.2,0.,0.)*grid(grid_st,0.02);
+		color += vec3(0.2)*grid(grid_st,0.1);
+
+
+
+		gl_FragColor = vec4( color , 1.0);
+	}`;
+	
+    var uniforms = {
+      u_resolution:  { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
+    };
+	
+    var material = new THREE.ShaderMaterial({ vertexShader, fragmentShader, uniforms });
+  
+	
+	var grid = new THREE.Mesh( geometry, material );		
+
+    SCENE.add(grid);
+}
+
 
 
 
